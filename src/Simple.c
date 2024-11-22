@@ -117,7 +117,7 @@ static XtResource resources[] = {
     sizeof(Pixel),
     offset(pointer_fg),
     XtRString,
-    XtDefaultForeground
+    (XtPointer)XtDefaultForeground
   },
   {
     XtNpointerColorBackground,
@@ -126,7 +126,7 @@ static XtResource resources[] = {
     sizeof(Pixel),
     offset(pointer_bg),
     XtRString,
-    XtDefaultBackground
+    (XtPointer)XtDefaultBackground
   },
   {
     XtNcursorName,
@@ -225,6 +225,9 @@ SimpleClassRec simpleClassRec = {
   /* simple */
   {
     ChangeSensitive,			/* change_sensitive */
+#ifndef OLDXAW
+    NULL,
+#endif
   },
 };
 
@@ -286,8 +289,8 @@ XawSimpleClassPartInitialize(WidgetClass cclass)
 #ifndef OLDXAW
 /*ARGSUSED*/
 static void
-XawSimpleInitialize(Widget request, Widget cnew,
-		    ArgList args, Cardinal *num_args)
+XawSimpleInitialize(Widget request _X_UNUSED, Widget cnew,
+		    ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     SimpleWidget simple = (SimpleWidget)cnew;
 
@@ -328,7 +331,7 @@ XawSimpleRealize(Widget w, Mask *valueMask, XSetWindowAttributes *attributes)
 	  w->core.border_pixmap = ((SimpleWidget)w)->simple.insensitive_border;
 
 	*valueMask |= CWBorderPixmap;
-	*valueMask &= ~CWBorderPixel;
+	*valueMask &= (Mask)(~CWBorderPixel);
     }
 
     ConvertCursor(w);
@@ -345,7 +348,7 @@ XawSimpleRealize(Widget w, Mask *valueMask, XSetWindowAttributes *attributes)
 #ifndef OLDXAW
     if (w->core.background_pixmap > XtUnspecifiedPixmap) {
 	pixmap = XawPixmapFromXPixmap(w->core.background_pixmap, XtScreen(w),
-				      w->core.colormap, w->core.depth);
+				      w->core.colormap, (int)w->core.depth);
 	if (pixmap && pixmap->mask)
 	    XawReshapeWidget(w, pixmap);
     }
@@ -376,7 +379,7 @@ ConvertCursor(Widget w)
 	return;
 
     from.addr = (XPointer)simple->simple.cursor_name;
-    from.size = strlen((char *)from.addr) + 1;
+    from.size = (unsigned)strlen((char *)from.addr) + 1;
 
     to.size = sizeof(Cursor);
     to.addr = (XPointer)&cursor;
@@ -393,8 +396,8 @@ ConvertCursor(Widget w)
 
 /*ARGSUSED*/
 static Boolean
-XawSimpleSetValues(Widget current, Widget request, Widget cnew,
-		   ArgList args, Cardinal *num_args)
+XawSimpleSetValues(Widget current, Widget request _X_UNUSED, Widget cnew,
+		   ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     SimpleWidget s_old = (SimpleWidget)current;
     SimpleWidget s_new = (SimpleWidget)cnew;
@@ -434,10 +437,10 @@ XawSimpleSetValues(Widget current, Widget request, Widget cnew,
 
 	opix = XawPixmapFromXPixmap(s_old->core.background_pixmap,
 				    XtScreen(s_old), s_old->core.colormap,
-				    s_old->core.depth);
+				    (int)s_old->core.depth);
 	npix = XawPixmapFromXPixmap(s_new->core.background_pixmap,
 				    XtScreen(s_new), s_new->core.colormap,
-				    s_new->core.depth);
+				    (int)s_new->core.depth);
 	if ((npix && npix->mask) || (opix && opix->mask))
 	    XawReshapeWidget(cnew, npix);
     }

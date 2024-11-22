@@ -1,4 +1,4 @@
-SUBDIRS = include src man specs
+SUBDIRS = include src examples man specs
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA =
@@ -27,6 +27,7 @@ endif
 
 MAINTAINERCLEANFILES = ChangeLog INSTALL
 EXTRA_DIST = 		   \
+	README.md	   \
         autogen.sh	   \
 	old-doc/Changelog  \
 	old-doc/CHANGES

@@ -90,7 +90,7 @@ static XtResource resources[] = {
     sizeof(Pixel),
     offset(foreground),
     XtRString,
-    XtDefaultForeground
+    (XtPointer)XtDefaultForeground
   },
 };
 #undef offset
@@ -152,8 +152,8 @@ WidgetClass smeLineObjectClass = (WidgetClass)&smeLineClassRec;
  */
 /*ARGSUSED*/
 static void
-XawSmeLineInitialize(Widget request, Widget cnew,
-		     ArgList args, Cardinal *num_args)
+XawSmeLineInitialize(Widget request _X_UNUSED, Widget cnew,
+		     ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     SmeLineObject entry = (SmeLineObject)cnew;
 
@@ -181,12 +181,12 @@ static void
 CreateGC(Widget w)
 {
     SmeLineObject entry = (SmeLineObject)w;
-    XGCValues values;
     XtGCMask mask = GCForeground | GCGraphicsExposures | GCLineWidth;
-
-    values.foreground = entry->sme_line.foreground;
-    values.graphics_exposures = False;
-    values.line_width = entry->sme_line.line_width;
+    XGCValues values = {
+        .foreground = entry->sme_line.foreground,
+        .graphics_exposures = False,
+        .line_width = entry->sme_line.line_width
+    };
 
     if (entry->sme_line.stipple != XtUnspecifiedPixmap) {
 	values.stipple = entry->sme_line.stipple;
@@ -220,7 +220,7 @@ DestroyGC(Widget w)
 
 /*ARGSUSED*/
 static void
-XawSmeLineRedisplay(Widget w, XEvent *event, Region region)
+XawSmeLineRedisplay(Widget w, XEvent *event _X_UNUSED, Region region _X_UNUSED)
 {
     SmeLineObject entry = (SmeLineObject)w;
     int y = XtY(w) + (((int)XtHeight(w) - entry->sme_line.line_width) >> 1);
@@ -247,8 +247,8 @@ XawSmeLineRedisplay(Widget w, XEvent *event, Region region)
  */
 /*ARGSUSED*/
 static Boolean
-XawSmeLineSetValues(Widget current, Widget request, Widget cnew,
-		    ArgList args, Cardinal *num_args)
+XawSmeLineSetValues(Widget current, Widget request _X_UNUSED, Widget cnew,
+		    ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     SmeLineObject entry = (SmeLineObject)cnew;
     SmeLineObject old_entry = (SmeLineObject)current;

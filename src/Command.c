@@ -200,6 +200,9 @@ CommandClassRec commandClassRec = {
   /* simple */
   {
     ChangeSensitive,			/* change_sensitive */
+#ifndef OLDXAW
+    NULL,
+#endif
   },
   /* label */
   {
@@ -219,17 +222,16 @@ WidgetClass commandWidgetClass = (WidgetClass)&commandClassRec;
 static GC
 Get_GC(CommandWidget cbw, Pixel fg, Pixel bg)
 {
-    XGCValues	values;
-
-    values.foreground	= fg;
-    values.background	= bg;
-    values.font		= cbw->label.font->fid;
-    values.cap_style	= CapProjecting;
+    XGCValues	values = {
+	.foreground	= fg,
+	.background	= bg,
+	.font		= cbw->label.font->fid,
+	.cap_style	= CapProjecting,
+	.line_width	= 0
+    };
 
     if (cbw->command.highlight_thickness > 1)
 	values.line_width = cbw->command.highlight_thickness;
-    else
-	values.line_width = 0;
 
     if (cbw->simple.international == True)
 	return (XtAllocateGC((Widget)cbw, 0,
@@ -243,8 +245,8 @@ Get_GC(CommandWidget cbw, Pixel fg, Pixel bg)
 
 /*ARGSUSED*/
 static void
-XawCommandInitialize(Widget request, Widget cnew,
-		     ArgList args, Cardinal *num_args)
+XawCommandInitialize(Widget request _X_UNUSED, Widget cnew,
+		     ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     CommandWidget cbw = (CommandWidget)cnew;
     int shape_event_base, shape_error_base;
@@ -295,9 +297,9 @@ HighlightRegion(CommandWidget cbw)
     rect.width = XtWidth(cbw);
     rect.height = XtHeight(cbw);
     XUnionRectWithRegion(&rect, emptyRegion, outerRegion);
-    rect.x = rect.y = cbw->command.highlight_thickness;
-    rect.width -= cbw->command.highlight_thickness * 2;
-    rect.height -= cbw->command.highlight_thickness * 2;
+    rect.x = rect.y = (short)cbw->command.highlight_thickness;
+    rect.width = (unsigned short)(rect.width - cbw->command.highlight_thickness * 2);
+    rect.height = (unsigned short)(rect.height - cbw->command.highlight_thickness * 2);
     XUnionRectWithRegion(&rect, emptyRegion, innerRegion);
     XSubtractRegion(outerRegion, innerRegion, outerRegion);
 
@@ -324,7 +326,7 @@ XawCommandToggle(Widget w)
 
 /*ARGSUSED*/
 static void
-Set(Widget w, XEvent *event, String *params, Cardinal *num_params)
+Set(Widget w, XEvent *event _X_UNUSED, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     CommandWidget cbw = (CommandWidget)w;
 
@@ -337,7 +339,7 @@ Set(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
 /*ARGSUSED*/
 static void
-Unset(Widget w, XEvent *event, String *params, Cardinal *num_params)
+Unset(Widget w, XEvent *event _X_UNUSED, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     CommandWidget cbw = (CommandWidget)w;
 
@@ -390,7 +392,7 @@ Highlight(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
 /*ARGSUSED*/
 static void
-Unhighlight(Widget w, XEvent *event, String *params, Cardinal *num_params)
+Unhighlight(Widget w, XEvent *event, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     CommandWidget cbw = (CommandWidget)w;
 
@@ -401,7 +403,7 @@ Unhighlight(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
 /*ARGSUSED*/
 static void
-Notify(Widget w, XEvent *event, String *params, Cardinal *num_params)
+Notify(Widget w, XEvent *event _X_UNUSED, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     CommandWidget cbw = (CommandWidget)w;
 
@@ -469,13 +471,13 @@ PaintCommandWidget(Widget w, XEvent *event, Region region, Bool change)
 		XClearArea(XtDisplay(w), XtWindow(w),
 			   0, cbw->command.highlight_thickness,
 			   cbw->command.highlight_thickness,
-			   XtHeight(cbw) - (cbw->command.highlight_thickness<<1),
+			   (unsigned)(XtHeight(cbw) - (cbw->command.highlight_thickness<<1)),
 			   False);
 		XClearArea(XtDisplay(w), XtWindow(w),
 			   XtWidth(cbw) - cbw->command.highlight_thickness,
 			   cbw->command.highlight_thickness,
 			   cbw->command.highlight_thickness,
-			   XtHeight(cbw) - (cbw->command.highlight_thickness<<1),
+			   (unsigned)(XtHeight(cbw) - (cbw->command.highlight_thickness<<1)),
 			   False);
 		XClearArea(XtDisplay(w), XtWindow(w),
 			   0, XtHeight(cbw) - cbw->command.highlight_thickness,
@@ -486,8 +488,8 @@ PaintCommandWidget(Widget w, XEvent *event, Region region, Bool change)
 		int offset = cbw->command.highlight_thickness / 2;
 
 		XDrawRectangle(XtDisplay(w),XtWindow(w), rev_gc, offset, offset,
-			       XtWidth(cbw) - cbw->command.highlight_thickness,
-			      XtHeight(cbw) - cbw->command.highlight_thickness);
+			       (unsigned)(XtWidth(cbw) - cbw->command.highlight_thickness),
+			       (unsigned)(XtHeight(cbw) - cbw->command.highlight_thickness));
 	   }
 	}
     }
@@ -506,7 +508,7 @@ XawCommandDestroy(Widget w)
 
 /*ARGSUSED*/
 static Boolean
-XawCommandSetValues(Widget current, Widget request, Widget cnew,
+XawCommandSetValues(Widget current, Widget request _X_UNUSED, Widget cnew,
 		    ArgList args, Cardinal *num_args)
 {
     CommandWidget oldcbw = (CommandWidget)current;
@@ -563,7 +565,7 @@ static void
 XawCommandGetValuesHook(Widget w, ArgList args, Cardinal *num_args)
 {
     CommandWidget cbw = (CommandWidget)w;
-    unsigned int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) {
 	if (STR_EQUAL(args[i].name, XtNforeground))
@@ -593,7 +595,7 @@ ShapeButton(CommandWidget cbw, Bool checkRectangular)
     if (cbw->command.shape_style == XawShapeRoundedRectangle) {
 	corner_size = XtWidth(cbw) < XtHeight(cbw) ?
 			XtWidth(cbw) : XtHeight(cbw);
-	corner_size = (corner_size * cbw->command.corner_round) / 100;
+	corner_size = (Dimension)((corner_size * cbw->command.corner_round) / 100);
     }
 
     if (checkRectangular || cbw->command.shape_style != XawShapeRectangle) {
