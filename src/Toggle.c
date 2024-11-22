@@ -90,7 +90,7 @@ static XtResource resources[] = {
     sizeof(Boolean),
     offset(command.set),
     XtRString,
-    "off"
+    (XtPointer)"off"
   },
   {
     XtNradioGroup,
@@ -159,6 +159,9 @@ ToggleClassRec toggleClassRec = {
   /* simple */
   {
     XtInheritChangeSensitive,		/* change_sensitive */
+#ifndef OLDXAW
+    NULL,
+#endif
   },
   /* label */
   {
@@ -179,7 +182,7 @@ ToggleClassRec toggleClassRec = {
 WidgetClass toggleWidgetClass = (WidgetClass)&toggleClassRec;
 
 /*
- * Impelementation
+ * Implementation
  */
 static void
 XawToggleClassInitialize(void)
@@ -225,7 +228,7 @@ XawToggleClassInitialize(void)
 /*ARGSUSED*/
 static void
 XawToggleInitialize(Widget request, Widget cnew,
-		    ArgList args, Cardinal *num_args)
+		    ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     ToggleWidget tw = (ToggleWidget)cnew;
     ToggleWidget tw_req = (ToggleWidget)request;
@@ -248,10 +251,10 @@ XawToggleInitialize(Widget request, Widget cnew,
      * have to handle the case where it needs to be set
      *
      * If this widget is in a radio group then it may cause another
-     * widget to be unset, thus calling the notify proceedure
+     * widget to be unset, thus calling the notify procedure
      *
      * I want to set the toggle if the user set the state to "On" in
-     * the resource group, reguardless of what my ancestors did
+     * the resource group, regardless of what my ancestors did
      */
     if (tw_req->command.set)
 	ToggleSet(cnew, NULL, NULL, NULL);
@@ -259,7 +262,7 @@ XawToggleInitialize(Widget request, Widget cnew,
 
 /*ARGSUSED*/
 static void
-ToggleSet(Widget w, XEvent *event, String *params, Cardinal *num_params)
+ToggleSet(Widget w, XEvent *event, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     ToggleWidgetClass cclass = (ToggleWidgetClass)w->core.widget_class;
 
@@ -281,7 +284,7 @@ Toggle(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
 /*ARGSUSED*/
 static void
-Notify(Widget w, XEvent *event, String *params, Cardinal *num_params)
+Notify(Widget w, XEvent *event _X_UNUSED, String *params _X_UNUSED, Cardinal *num_params _X_UNUSED)
 {
     ToggleWidget tw = (ToggleWidget)w;
     long antilint = tw->command.set;
@@ -292,7 +295,7 @@ Notify(Widget w, XEvent *event, String *params, Cardinal *num_params)
 /*ARGSUSED*/
 static Boolean
 XawToggleSetValues(Widget current, Widget request, Widget cnew,
-		   ArgList args, Cardinal *num_args)
+		   ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
     ToggleWidget oldtw = (ToggleWidget)current;
     ToggleWidget tw = (ToggleWidget)cnew;
@@ -326,7 +329,7 @@ XawToggleSetValues(Widget current, Widget request, Widget cnew,
  */
 /*ARGSUSED*/
 static void
-XawToggleDestroy(Widget w, XtPointer temp1, XtPointer temp2)
+XawToggleDestroy(Widget w, XtPointer temp1 _X_UNUSED, XtPointer temp2 _X_UNUSED)
 {
     RemoveFromRadioGroup(w);
 }
@@ -489,7 +492,6 @@ void
 XawToggleChangeRadioGroup(Widget w, Widget radio_group)
 {
     ToggleWidget tw = (ToggleWidget)w;
-    RadioGroup *group;
 
     RemoveFromRadioGroup(w);
 
@@ -502,7 +504,9 @@ XawToggleChangeRadioGroup(Widget w, Widget radio_group)
 	XawToggleUnsetCurrent(radio_group);
 
     if (radio_group != NULL) {
-	if ((group = GetRadioGroup(radio_group)) == NULL)
+	RadioGroup *group = GetRadioGroup(radio_group);
+
+	if (group == NULL)
 	    CreateRadioGroup(w, radio_group);
 	else
 	    AddToRadioGroup(group, w);
@@ -611,12 +615,13 @@ XawToggleSetCurrent(Widget radio_group, XtPointer radio_data)
 void
 XawToggleUnsetCurrent(Widget radio_group)
 {
-    ToggleWidgetClass cclass;
     ToggleWidget local_tog = (ToggleWidget)radio_group;
 
     /* Special Case no radio group */
 
     if (local_tog->command.set) {
+	ToggleWidgetClass cclass;
+
 	cclass = (ToggleWidgetClass)local_tog->core.widget_class;
 	cclass->toggle_class.Unset(radio_group, NULL, NULL, NULL);
 	Notify(radio_group, NULL, NULL, NULL);

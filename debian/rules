@@ -7,26 +7,29 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+PACKAGE = libxaw
+
 %:
-	dh $@ --with quilt,autoreconf --builddirectory=build/ --parallel
+	dh $@ --with quilt --builddirectory=build/
 
 docflags = --enable-specs
 
 override_dh_auto_configure-arch: docflags = --disable-specs
+override_dh_auto_configure-indep: docflags = --with-xmlto
 override_dh_auto_configure-arch override_dh_auto_configure-indep:
 	dh_auto_configure -- \
 		--docdir=\$${datadir}/doc/libxaw7-dev \
 		--disable-xaw6 \
-		--with-xmlto --without-fop \
+		--without-fop \
 		--disable-silent-rules \
 		$(docflags)
 
 override_dh_install:
-	dh_install --fail-missing --exclude=.la
+	find debian/tmp/ -name '*.la' -exec rm '{}' ';'
+	dh_install
 
 override_dh_strip:
-	dh_strip -Nlibxaw7
-	dh_strip -plibxaw7 --dbg-package=libxaw7-dbg
+	dh_strip --dbgsym-migration='$(PACKAGE)-dbg (<< 2:1.0.14-1~)'
 
 override_dh_compress:
 	dh_compress -X.xml

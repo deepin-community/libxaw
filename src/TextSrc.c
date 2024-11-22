@@ -143,7 +143,7 @@ static XtResource resources[] = {
     sizeof(XawTextEditType),
     offset(edit_mode),
     XtRString,
-    "read"
+    (XtPointer)"read"
   },
 #ifndef OLDXAW
   {
@@ -231,6 +231,9 @@ TextSrcClassRec textSrcClassRec = {
     Search,				/* Search */
     SetSelection,			/* SetSelection */
     ConvertSelection,			/* ConvertSelection */
+#ifndef OLDXAW
+    NULL,				/* extension */
+#endif
   },
 };
 
@@ -238,7 +241,7 @@ WidgetClass textSrcObjectClass = (WidgetClass)&textSrcClassRec;
 
 static XrmQuark QRead, QAppend, QEdit;
 #ifndef OLDXAW
-static char *SrcNL = "\n";
+static char *SrcNL = (char*)"\n";
 static wchar_t SrcWNL[2];
 #endif
 
@@ -296,8 +299,8 @@ XawTextSrcClassPartInitialize(WidgetClass wc)
 
 /*ARGSUSED*/
 static void
-XawTextSrcInitialize(Widget request, Widget cnew,
-		     ArgList args, Cardinal *num_args)
+XawTextSrcInitialize(Widget request _X_UNUSED, Widget cnew _X_UNUSED,
+		     ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
 #ifndef OLDXAW
     TextSrcObject src = (TextSrcObject)cnew;
@@ -326,7 +329,7 @@ XawTextSrcInitialize(Widget request, Widget cnew,
 }
 
 static void
-XawTextSrcDestroy(Widget w)
+XawTextSrcDestroy(Widget w _X_UNUSED)
 {
 #ifndef OLDXAW
     TextSrcObject src = (TextSrcObject)w;
@@ -357,8 +360,8 @@ XawTextSrcDestroy(Widget w)
 
 /*ARGSUSED*/
 static Boolean
-XawTextSrcSetValues(Widget current, Widget request, Widget cnew,
-		    ArgList args, Cardinal *num_args)
+XawTextSrcSetValues(Widget current _X_UNUSED, Widget request _X_UNUSED, Widget cnew _X_UNUSED,
+		    ArgList args _X_UNUSED, Cardinal *num_args _X_UNUSED)
 {
 #ifndef OLDXAW
     TextSrcObject oldtw = (TextSrcObject)current;
@@ -399,7 +402,7 @@ XawTextSrcSetValues(Widget current, Widget request, Widget cnew,
  *
  * Parameters:
  *	w      - TextSrc Object
- *	pos    - position of the text to retreive
+ *	pos    - position of the text to retrieve
  *	text   - text block that will contain returned text
  *	length - maximum number of characters to read
  *
@@ -411,7 +414,7 @@ XawTextSrcSetValues(Widget current, Widget request, Widget cnew,
  */
 /*ARGSUSED*/
 static XawTextPosition
-Read(Widget w, XawTextPosition pos, XawTextBlock *text, int length)
+Read(Widget w _X_UNUSED, XawTextPosition pos _X_UNUSED, XawTextBlock *text _X_UNUSED, int length _X_UNUSED)
 {
     return ((XawTextPosition)0);
 }
@@ -431,8 +434,8 @@ Read(Widget w, XawTextPosition pos, XawTextBlock *text, int length)
  */
 /*ARGSUSED*/
 static int
-Replace(Widget w, XawTextPosition startPos, XawTextPosition endPos,
-	XawTextBlock *text)
+Replace(Widget w _X_UNUSED, XawTextPosition startPos _X_UNUSED, XawTextPosition endPos _X_UNUSED,
+	XawTextBlock *text _X_UNUSED)
 {
     return (XawEditError);
 }
@@ -446,8 +449,8 @@ Replace(Widget w, XawTextPosition startPos, XawTextPosition endPos,
  *	position - position to start scanning
  *	type	 - type of thing to scan for
  *	dir	 - direction to scan
- *	count	 - which occurance if this thing to search for
- *		 include - whether or not to include the character found in
+ *	count	 - which occurrence 0f this thing to search for
+ *	include  - whether or not to include the character found in
  *		   the position that is returned
  *
  * Description:
@@ -455,8 +458,8 @@ Replace(Widget w, XawTextPosition startPos, XawTextPosition endPos,
  */
 /*ARGSUSED*/
 static XawTextPosition
-Scan(Widget w, XawTextPosition position, XawTextScanType type,
-     XawTextScanDirection dir, int count, Bool include)
+Scan(Widget w _X_UNUSED, XawTextPosition position _X_UNUSED, XawTextScanType type _X_UNUSED,
+     XawTextScanDirection dir _X_UNUSED, int count _X_UNUSED, Bool include _X_UNUSED)
 {
     return ((XawTextPosition)0);
 }
@@ -472,34 +475,34 @@ Scan(Widget w, XawTextPosition position, XawTextScanType type,
  *	text	 - the text block to search for
  *
  * Description:
- *	Searchs the text source for the text block passed
+ *	Searches the text source for the text block passed
  */
 /*ARGSUSED*/
 static XawTextPosition
-Search(Widget w, XawTextPosition position, XawTextScanDirection dir,
-       XawTextBlock *text)
+Search(Widget w _X_UNUSED, XawTextPosition position _X_UNUSED, XawTextScanDirection dir _X_UNUSED,
+       XawTextBlock *text _X_UNUSED)
 {
     return (XawTextSearchError);
 }
 
 /*ARGSUSED*/
 static Boolean
-ConvertSelection(Widget w, Atom *selection, Atom *target, Atom *type,
-		 XtPointer *value, unsigned long *length, int *format)
+ConvertSelection(Widget w _X_UNUSED, Atom *selection _X_UNUSED, Atom *target _X_UNUSED, Atom *type _X_UNUSED,
+		 XtPointer *value _X_UNUSED, unsigned long *length _X_UNUSED, int *format _X_UNUSED)
 {
     return (False);
 }
 
 /*ARGSUSED*/
 static void
-SetSelection(Widget w, XawTextPosition left, XawTextPosition right,
-	     Atom selection)
+SetSelection(Widget w _X_UNUSED, XawTextPosition left _X_UNUSED, XawTextPosition right _X_UNUSED,
+	     Atom selection _X_UNUSED)
 {
 }
 
 /*ARGSUSED*/
 static void
-CvtStringToEditMode(XrmValuePtr args, Cardinal *num_args,
+CvtStringToEditMode(XrmValuePtr args _X_UNUSED, Cardinal *num_args _X_UNUSED,
 		    XrmValuePtr fromVal, XrmValuePtr toVal)
 {
     static XawTextEditType editType;
@@ -526,9 +529,9 @@ CvtStringToEditMode(XrmValuePtr args, Cardinal *num_args,
 
 /*ARGSUSED*/
 static Boolean
-CvtEditModeToString(Display *dpy, XrmValuePtr args, Cardinal *num_args,
+CvtEditModeToString(Display *dpy, XrmValuePtr args _X_UNUSED, Cardinal *num_args _X_UNUSED,
 		    XrmValuePtr fromVal, XrmValuePtr toVal,
-		    XtPointer *data)
+		    XtPointer *data _X_UNUSED)
 {
     static String buffer;
     Cardinal size;
@@ -550,7 +553,7 @@ CvtEditModeToString(Display *dpy, XrmValuePtr args, Cardinal *num_args,
 	    return (False);
     }
 
-    size = strlen(buffer) + 1;
+    size = (Cardinal)(strlen(buffer) + 1);
     if (toVal->addr != NULL) {
 	if (toVal->size < size) {
 	    toVal->size = size;
@@ -573,7 +576,7 @@ _XawTextSourceNewLineAtEOF(Widget w)
     XawTextBlock text;
 
     text.firstPos = 0;
-    if ((text.format = src->textSrc.text_format) == XawFmt8Bit)
+    if ((text.format = (unsigned long)src->textSrc.text_format) == XawFmt8Bit)
 	text.ptr = SrcNL;
     else
 	text.ptr = (char*)SrcWNL;
@@ -600,7 +603,7 @@ _XawSourceAddText(Widget source, Widget text)
     if (!found) {
 	src->textSrc.text = (WidgetList)
 	    XtRealloc((char*)src->textSrc.text,
-		      sizeof(Widget) * (src->textSrc.num_text + 1));
+		      (Cardinal)(sizeof(Widget) * (src->textSrc.num_text + 1)));
 	src->textSrc.text[src->textSrc.num_text++] = text;
     }
 }
@@ -690,7 +693,7 @@ _XawSourceSetUndoErase(TextSrcObject src, int value)
 }
 
 /*
- * To diferentiate insert-char's separeted by cursor movements.
+ * To differentiate insert-char's separated by cursor movements.
  */
 void
 _XawSourceSetUndoMerge(TextSrcObject src, Bool state)
@@ -732,6 +735,7 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
     Bool enable_undo;
     XawTextPosition start, end;
     int i, error, lines = 0;
+    Cardinal j;
 
     if (src->textSrc.edit_mode == XawtextRead)
 	return (XawEditError);
@@ -751,19 +755,19 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 	if (left < right) {
 	    Widget ctx = NULL;
 
-	    for (i = 0; i < src->textSrc.num_text; i++)
-		if (XtIsSubclass(src->textSrc.text[i], textWidgetClass)) {
-		    ctx = src->textSrc.text[i];
+	    for (j = 0; j < src->textSrc.num_text; j++)
+		if (XtIsSubclass(src->textSrc.text[j], textWidgetClass)) {
+		    ctx = src->textSrc.text[j];
 		    break;
 		}
 	    l_state->buffer = _XawTextGetText((TextWidget)ctx, left, right);
-	    l_state->length = right - left;
+	    l_state->length = (unsigned)(right - left);
 	}
 	else {
 	    l_state->length = 0;
 	    l_state->buffer = NULL;
 	}
-	l_state->format = src->textSrc.text_format;
+	l_state->format = (unsigned long)src->textSrc.text_format;
 	if (l_state->length == 1) {
 	    if (l_state->format == XawFmtWide &&
 		*(wchar_t*)l_state->buffer == *SrcWNL) {
@@ -786,8 +790,8 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 	r_state->position = left;
 	r_state->format = block->format;
 	size = block->format == XawFmtWide ? sizeof(wchar_t) : sizeof(char);
-	total = size * block->length;
-	r_state->length = block->length;
+	total = (size * (unsigned)block->length);
+	r_state->length = (unsigned)block->length;
 	r_state->buffer = NULL;
 	if (total == size) {
 	    if (r_state->format == XawFmtWide &&
@@ -823,8 +827,8 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
      */
     if (left > LARGE_VALUE) {
 	start = XawTextSourceScan(w, left, XawstEOL, XawsdLeft, 2, False);
-	for (i = 0; i < src->textSrc.num_text; i++) {
-	    TextWidget tw = (TextWidget)src->textSrc.text[i];
+	for (j = 0; j < src->textSrc.num_text; j++) {
+	    TextWidget tw = (TextWidget)src->textSrc.text[j];
 
 	    if (left <= tw->text.lt.top &&
 		left + block->length - (right - left) > tw->text.lt.top)
@@ -953,8 +957,8 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 	else {
 	    src->textSrc.undo->undo = (XawTextUndoBuffer**)
 		XtRealloc((char*)src->textSrc.undo->undo,
-			  (2 + src->textSrc.undo->num_undo)
-			  * sizeof(XawTextUndoBuffer));
+			  (Cardinal)((2 + src->textSrc.undo->num_undo)
+				     * sizeof(XawTextUndoBuffer)));
 	    src->textSrc.undo->undo[src->textSrc.undo->num_undo++] = l_state;
 	    src->textSrc.undo->undo[src->textSrc.undo->num_undo++] = r_state;
 
@@ -983,7 +987,6 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 	src->textSrc.changed = True;
 
     if (error == XawEditDone) {
-	XawTextPropertyInfo info;
 	XawTextAnchor *anchor;
 
 	/* find anchor and index */
@@ -1019,9 +1022,9 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 	    /* adjust entity length */
 	    if (entity && offset <= left) {
 		if (offset + entity->length < right)
-		    entity->length = left - offset + block->length;
+		    entity->length = (Cardinal)(left - offset + block->length);
 		else
-		    entity->length += diff;
+		    entity->length = (Cardinal)(entity->length + diff);
 
 		if (entity->length == 0) {
 		    enext = entity->next;
@@ -1051,7 +1054,7 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 		    offset = anchor->position + entity->offset + entity->length;
 
 		    if (offset > right) {
-			entity->length = XawMin(entity->length, offset - right);
+			entity->length = (Cardinal) (XawMin(entity->length, offset - right));
 			goto exit_anchor_loop;
 		    }
 
@@ -1068,7 +1071,7 @@ XawTextSourceReplace(Widget w, XawTextPosition left,
 			    else if (i < --src->textSrc.num_anchors) {
 				memmove(&src->textSrc.anchors[i],
 					&src->textSrc.anchors[i + 1],
-					(src->textSrc.num_anchors - i) *
+					(size_t)(src->textSrc.num_anchors - i) *
 					sizeof(XawTextAnchor*));
 				XtFree((XtPointer)anchor);
 			    }
@@ -1158,7 +1161,7 @@ exit_anchor_loop:
 			anchor->cache = NULL;
 			if ((anchor->entities = entity) != NULL) {
 			    if ((entity->offset += diff) < 0) {
-				entity->length += entity->offset;
+				entity->length = (Cardinal)(entity->length + entity->offset);
 				entity->offset = 0;
 			    }
 			}
@@ -1183,10 +1186,15 @@ exit_anchor_loop:
 	    }
 	}
 
-	info.left = left;
-	info.right = right;
-	info.block = block;
-	XtCallCallbacks(w, XtNpropertyCallback, &info);
+	{
+	    XawTextPropertyInfo info = {
+		.left = left,
+		.right = right,
+		.block = block
+	    };
+
+	    XtCallCallbacks(w, XtNpropertyCallback, &info);
+	}
 
 	TellSourceChanged(src, left, right, block, lines);
 	/* Call callbacks, we have changed the buffer */
@@ -1229,7 +1237,7 @@ _XawTextSrcUndo(TextSrcObject src, XawTextPosition *insert_pos)
 	src->textSrc.changed = True;
 
     block.firstPos = 0;
-    block.length = r_state->length;
+    block.length = (int)r_state->length;
     block.ptr = r_state->buffer ? r_state->buffer : (char*)&wnull;
     block.format = r_state->format;
 
@@ -1343,13 +1351,12 @@ FreeUndoBuffer(XawTextUndo *undo)
     undo->l_no_change = undo->r_no_change = NULL;
     undo->undo = NULL;
     undo->dir = XawsdLeft;
-    undo->num_undo = undo->num_list = undo->erase = undo->merge = 0;
+    undo->num_undo = undo->num_list = (unsigned)(undo->erase = undo->merge = 0);
 }
 
 static void
 UndoGC(XawTextUndo *undo)
 {
-    unsigned i;
     XawTextUndoList *head = undo->head, *redo = head->redo;
 
     if (head == undo->pointer || head == undo->end_mark
@@ -1362,6 +1369,8 @@ UndoGC(XawTextUndo *undo)
 
     --head->left->refcount;
     if (--head->right->refcount == 0) {
+	unsigned i;
+
 	for (i = 0; i < undo->num_undo; i+= 2)
 	    if (head->left == undo->undo[i] || head->left == undo->undo[i+1]) {
 		if (head->left == undo->undo[i+1]) {
@@ -1399,7 +1408,7 @@ UndoGC(XawTextUndo *undo)
  *	position - position to start scanning
  *	type	 - type of thing to scan for
  *	dir	 - direction to scan
- *	count	 - which occurance if this thing to search for
+ *	count	 - which occurrence if this thing to search for
  *	include  - whether or not to include the character found in
  *		   the position that is returned.
  *
@@ -1439,7 +1448,7 @@ XawTextSourceScan(Widget w, XawTextPosition position,
  *	The position of the text we are searching for or XawTextSearchError.
  *
  * Description:
- *	Searchs the text source for the text block passed
+ *	Searches the text source for the text block passed
  */
 XawTextPosition
 XawTextSourceSearch(Widget w, XawTextPosition position,
@@ -1463,7 +1472,7 @@ XawTextSourceSearch(Widget w, XawTextPosition position,
  *	w	  - TextSrc object
  *	selection - current selection atom
  *	target	  - current target atom
- *	type	  - type to conver the selection to
+ *	type	  - type to convert the selection to
  *	value	  - return value that has been converted
  *	length	  - ""
  *	format	  - format of the returned value
@@ -1489,7 +1498,7 @@ XawTextSourceConvertSelection(Widget w, Atom *selection, Atom *target,
  * Parameters:
  *	w	  - TextSrc object
  *	left	  - bounds of the selection
- *	rigth	  - ""
+ *	right	  - ""
  *	selection - selection atom
  *
  * Description:
@@ -1522,7 +1531,7 @@ _XawTextFormat(TextWidget tw)
  *	The caller is responsible for freeing both the source and ret string
  *
  *	wstr	   - source wchar string
- * len_in_out - lengh of string.
+ *	len_in_out - length of string.
  *		     As In, length of source wchar string, measured in wchar
  *		     As Out, length of returned string
  */
@@ -1538,7 +1547,7 @@ _XawTextWCToMB(Display *d, wchar_t *wstr, int *len_in_out)
 	*len_in_out = 0;
 	return (NULL);
     }
-    *len_in_out = textprop.nitems;
+    *len_in_out = (int)textprop.nitems;
 
     return ((char *)textprop.value);
 }
@@ -1548,7 +1557,7 @@ _XawTextWCToMB(Display *d, wchar_t *wstr, int *len_in_out)
  *   The caller is responsible for freeing both the source and ret string.
  *
  *	str	   - source string
- *	len_in_out - lengh of string
+ *	len_in_out - length of string
  *		     As In, it is length of source string
  *		     As Out, it is length of returned string, measured in wchar
  */
@@ -1563,9 +1572,9 @@ _XawTextMBToWC(Display *d, char *str, int *len_in_out)
     if (*len_in_out == 0)
 	return (NULL);
 
-    buf = XtMalloc(*len_in_out + 1);
+    buf = XtMalloc((Cardinal)(*len_in_out + 1));
 
-    strncpy(buf, str, *len_in_out);
+    strncpy(buf, str, (size_t)*len_in_out);
     *(buf + *len_in_out) = '\0';
     if (XmbTextListToTextProperty(d, &buf, 1, XTextStyle, &textprop) != Success) {
 	XtWarningMsg("convertError", "textSource", "XawError",
@@ -1584,7 +1593,7 @@ _XawTextMBToWC(Display *d, char *str, int *len_in_out)
 	return (NULL);
     }
     wstr = wlist[0];
-    *len_in_out = wcslen(wstr);
+    *len_in_out = (int)wcslen(wstr);
     XtFree((XtPointer)wlist);
 
     return (wstr);
@@ -1594,8 +1603,8 @@ _XawTextMBToWC(Display *d, char *str, int *len_in_out)
 static int
 qcmp_anchors(_Xconst void *left, _Xconst void *right)
 {
-    return ((*(XawTextAnchor**)left)->position -
-	    (*(XawTextAnchor**)right)->position);
+    return (int)((*(XawTextAnchor**)left)->position -
+		 (*(XawTextAnchor**)right)->position);
 }
 
 XawTextAnchor *
@@ -1658,10 +1667,12 @@ XawTextSourceAddAnchor(Widget w, XawTextPosition position)
     anchor->cache = NULL;
 
     src->textSrc.anchors = (XawTextAnchor**)
-	XtRealloc((XtPointer)src->textSrc.anchors, sizeof(XawTextAnchor*) *
-		  (src->textSrc.num_anchors + 1));
+	XtRealloc((XtPointer)src->textSrc.anchors,
+		  (Cardinal)(sizeof(XawTextAnchor*) *
+			     (size_t)(src->textSrc.num_anchors + 1)));
     src->textSrc.anchors[src->textSrc.num_anchors++] = anchor;
-    qsort((void*)src->textSrc.anchors, src->textSrc.num_anchors,
+    qsort((void*)src->textSrc.anchors,
+	  (size_t)src->textSrc.num_anchors,
 	  sizeof(XawTextAnchor*), qcmp_anchors);
 
     return (anchor);
@@ -1671,13 +1682,15 @@ XawTextAnchor *
 XawTextSourceFindAnchor(Widget w, XawTextPosition position)
 {
     TextSrcObject src = (TextSrcObject)w;
-    int i = 0, left, right, nmemb = src->textSrc.num_anchors;
-    XawTextAnchor *anchor, **anchors = src->textSrc.anchors;
+    int left, right, nmemb = src->textSrc.num_anchors;
+    XawTextAnchor **anchors = src->textSrc.anchors;
 
     left = 0;
     right = nmemb - 1;
     while (left <= right) {
-	anchor = anchors[i = (left + right) >> 1];
+	int i = (left + right) >> 1;
+	XawTextAnchor *anchor = anchors[i];
+
 	if (anchor->position == position)
 	    return (anchor);
 	else if (position < anchor->position)
@@ -1699,7 +1712,6 @@ XawTextSourceAnchorAndEntity(Widget w, XawTextPosition position,
 {
     XawTextAnchor *anchor = XawTextSourceFindAnchor(w, position);
     XawTextEntity *pentity, *entity;
-    XawTextPosition offset;
     Bool next_anchor = True, retval = False;
 
     if (anchor->cache && anchor->position + anchor->cache->offset +
@@ -1708,7 +1720,7 @@ XawTextSourceAnchorAndEntity(Widget w, XawTextPosition position,
     else
 	pentity = entity = anchor->entities;
     while (entity) {
-	offset = anchor->position + entity->offset;
+	XawTextPosition offset = anchor->position + entity->offset;
 
 	if (offset > position) {
 	    retval = next_anchor = False;
@@ -1782,7 +1794,7 @@ XawTextSourceRemoveAnchor(Widget w, XawTextAnchor *anchor)
 	if (i < --src->textSrc.num_anchors) {
 	    memmove(&src->textSrc.anchors[i],
 		    &src->textSrc.anchors[i + 1],
-		    (src->textSrc.num_anchors - i) *
+		    (size_t)(src->textSrc.num_anchors - i) *
 		    sizeof(XawTextAnchor*));
 
 	    return (src->textSrc.anchors[i]);
@@ -1865,8 +1877,8 @@ XawTextSourceAddEntity(Widget w, int type, int flags, XtPointer data,
     }
 
     entity = XtNew(XawTextEntity);
-    entity->type = type;
-    entity->flags = flags;
+    entity->type = (short)type;
+    entity->flags = (short)flags;
     entity->data = data;
     entity->offset = position - anchor->position;
     entity->length = length;
@@ -1897,7 +1909,6 @@ XawTextSourceClearEntities(Widget w, XawTextPosition left, XawTextPosition right
     XawTextAnchor *anchor = XawTextSourceFindAnchor(w, left);
     XawTextEntity *entity, *eprev, *enext;
     XawTextPosition offset;
-    int length;
 
     while (anchor && anchor->entities == NULL)
 	anchor = XawTextSourceRemoveAnchor(w, anchor);
@@ -1926,7 +1937,7 @@ XawTextSourceClearEntities(Widget w, XawTextPosition left, XawTextPosition right
 
     offset = anchor->position + entity->offset;
     if (offset <= left) {
-	length = XawMin(entity->length, left - offset);
+	int length = (int) (XawMin(entity->length, left - offset));
 
 	if (length <= 0) {
 	    enext = entity->next;
@@ -1947,7 +1958,7 @@ XawTextSourceClearEntities(Widget w, XawTextPosition left, XawTextPosition right
 		entity = enext;
 	}
 	else {
-	    entity->length = length;
+	    entity->length = (Cardinal)length;
 	    eprev = entity;
 	    entity = entity->next;
 	}
@@ -1961,7 +1972,7 @@ XawTextSourceClearEntities(Widget w, XawTextPosition left, XawTextPosition right
 	    if (offset > right) {
 		anchor->cache = NULL;
 		entity->offset = XawMax(entity->offset, right - anchor->position);
-		entity->length = XawMin(entity->length, offset - right);
+		entity->length = (Cardinal) (XawMin(entity->length, offset - right));
 		return;
 	    }
 

@@ -1,16 +1,17 @@
 
 # Initialize Autoconf
 AC_PREREQ([2.60])
-AC_INIT([libXaw], [1.0.13],
-        [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg], [libXaw])
+AC_INIT([libXaw], [1.0.16],
+        [https://gitlab.freedesktop.org/xorg/lib/libxaw/-/issues], [libXaw])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIRS([m4])
 
 # Initialize Automake
-AM_INIT_AUTOMAKE([foreign dist-bzip2])
+AM_INIT_AUTOMAKE([foreign dist-xz])
 
 # Initialize libtool
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Require xorg-macros minimum of 1.12 for DocBook external references
 m4_ifndef([XORG_MACROS_VERSION],
@@ -106,10 +107,28 @@ case $host_os in
 	;;
 esac
 
+AC_MSG_CHECKING(if C const-support is wanted)
+AC_ARG_ENABLE(const, AS_HELP_STRING([--disable-const], [Disable const-support]),
+	USE_CONST="$enableval", USE_CONST="yes")
+AC_MSG_RESULT($USE_CONST)
+if test "x$USE_CONST" = "xyes" ; then
+	AC_DEFINE(_CONST_X_STRING, 1, [Define to 1 to use standard C const feature.])
+fi
+
+# --enable-unit-tests
+XORG_ENABLE_UNIT_TESTS(no)
+XORG_MEMORY_CHECK_FLAGS
+if test "x$enable_unit_tests" != "xno" ; then
+	AC_CHECK_FUNCS([malloc_usable_size])
+	AC_CHECK_HEADERS([malloc.h])
+fi
+
 AC_CONFIG_FILES([Makefile
+		examples/Makefile
 		include/Makefile
 		man/Makefile
 		specs/Makefile
+		specs/libXaw.ent
 		src/Makefile])
 
 if test "x$build_v6" = xyes; then
